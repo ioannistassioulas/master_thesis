@@ -7,6 +7,9 @@ Working codebase to create my own DMRG simulation. Currently work in progress wh
 ### books
 
 Contains all the jupyter notebooks to be used for the simulation. At the moment only contains one  - simulation.ipynb
+### notes
+
+Digital lab notebook. Handwritten notes of ideas, theory and derivations
 
 ### utils
 
