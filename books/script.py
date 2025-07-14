@@ -1,7 +1,13 @@
 # Python script to submit to HPC
 
-from dmrg import *
-from utils import *
+# from dmrg import MPS, MPO_TFI, CONT, dmrg, observables
+from dmrg.MPS import MPS 
+from dmrg.MPO import MPO_TFI
+from dmrg.cont import CONT
+from dmrg.dmrg import dmrg
+from dmrg.obs import observables
+
+# from utils import *
 
 import os
 import shutil
