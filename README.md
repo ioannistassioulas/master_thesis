@@ -9,7 +9,7 @@ Working codebase to create my own DMRG simulation. Currently work in progress wh
 Contains all the jupyter notebooks to be used for the simulation. At the moment only contains one  - simulation.ipynb
 ### notes
 
-Digital lab notebook. Handwritten notes of ideas, theory and derivations
+Digital lab notebook. Handwritten notes of ideas, theory and derivations. Alongside important sparknotes of any papers that I read or want to read for the thesis.
 
 ### utils
 
