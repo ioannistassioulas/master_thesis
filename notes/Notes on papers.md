@@ -64,6 +64,7 @@ This is the four majorana over four sites interaction - the relatively basic one
 They looked at a similar hamiltonian of 
 
 * Ask Natalia about one of the papers - why is there some kind of difference? Oh never mind she already brings it up in the paper hahahaha
+Double checking 
 
 
 ## Second round of papers 
