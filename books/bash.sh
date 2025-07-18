@@ -8,6 +8,6 @@
 #SBATCH --mem-per-cpu=1G
 #SBATCH --account=education-as-msc-ap
 
-module load python/3.12.3
+module load python/3.10.12
 
 srun python3 script.py
