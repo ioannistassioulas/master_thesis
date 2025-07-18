@@ -1,4 +1,7 @@
-## Lattice Supersymmetry and Order-Disorder Coexistence in the Tricritical Ising Model
+
+## Introductory papers
+
+### Lattice Supersymmetry and Order-Disorder Coexistence in the Tricritical Ising Model
 
 In general, this paper was the first real introduction into the language of one dimensional physics.What it sought to show was that the interacting one dimensional ising model with an interaction term of $\gamma_i \gamma_{i+1} \gamma_{i+3} \gamma_{i+4}$ shows some interesting physics, in particular:
 1. Self-duality requires no parameter tuning
@@ -14,7 +17,7 @@ The simulations of DMRG seeked to reproduce some well known CFT constants for bo
 - This means that the long range interaction of the point in question is explainable by the tricritical Ising CFT
 
 Between thsi paper and the next paper, the most important things to learn are the techniques employed. 
-## Emergent Supersymmetry from Strongly Interacting Majorana Zero Modes
+### Emergent Supersymmetry from Strongly Interacting Majorana Zero Modes
 
 Paper studied the Hamiltonian of $$H = it \sum_j \gamma_i \gamma_{i+1} + g \sum_j \gamma_i \gamma_{i+1} \gamma_{i+2} \gamma_{i+3} $$ which corresponds to nearest neighbour interactions as well as a a 4 block of interactions. It is shown that for $g > 0$, this hamiltonian contains supersymmetric phases. 
 
@@ -27,13 +30,13 @@ As we can see, we are primarily concerned with identifying the phases based on t
 
 With these different energies, they calculated using CFT what they expect, and then numerically found the same numbers at hte critical point - this proved that at the critical point, the system they were studying was at a TCI phase!
 - How did they find the critical point? They simply simulated for different values of $t_c$ and checked tot see which one got closest to theoretical predictions.
-## Critical properties of the Majorana chain with competing interactions
+### Critical properties of the Majorana chain with competing interactions
 
 This paper went on to study the Hamiltonian of $$\mathcal{H} = it \sum_a \gamma_a \gamma_{a+1} - g \sum_a \gamma_a \gamma_{a+1} \gamma_{a+2} \gamma_{a+3} -f \sum_a \gamma_a \gamma_{a+1} \gamma_{a+3} \gamma_{a+4},$$ where the g interaction was studied in the previous paper. The paper was interested in the interaction between f and g. To study this, t was set to 1. The phase diagram of this Hamiltonian presented *nine* different phases (very high compared to what we are expecting). In general, the paper focuses on the following phases, which I might expect to come out of my own Majorana simulations:
 - Ising-1/Ising-2: critical phases that behave in the Ising universality class (described by the CFT that describes the Ising model)
 - Floating phase + Ising: This kind of phase is special. We see both incommensurate LL behaviour as well as Ising criticality. In other words, we have 
 
-## Conformal data and renormalization group flow in critical quantum spin chains using periodic uniform matrix product states
+### Conformal data and renormalization group flow in critical quantum spin chains using periodic uniform matrix product states
 
 In general, this paper looked less on new physics and more on discovering a new method. In particular, it saw that a Block-state ansatz of puMPS is a good option for 1D quantum spin chain analysis - this is in effect what I will be doing in my research so I will need to learn quite a bit from the master :))
 
@@ -51,8 +54,16 @@ We can extract things such as scaling dimensions and central charge - the confor
 Some other techniques that might be useful - preconditioning, look it up as i go along
 
 We want to find this conformal data because conformal data usually tells us about the phasee that the system is in for some point in parameter space. When there is a jump, we know we are in a critical region! 
-## Phase diagram of the interacting Majorana chain model
+### Phase diagram of the interacting Majorana chain model
 
 As before, we study a particular hamiltonian here:
 $$ \mathcal{H} = \sum_j \left[ it\gamma_i \gamma_{i+1} + g \gamma_i \gamma_{i+1} \gamma_{i+2} \gamma_{i+3} \right] $$
 This is the four majorana over four sites interaction - the relatively basic one that started it all. Compared to the other paper discussed, this one exhibits SUSY only on the scale of 250. 
+### Topological and quantum critical properties of the interacting Majorana chain model
+
+They looked at a similar hamiltonian of 
+
+* Ask Natalia about one of the papers - why is there some kind of difference? Oh never mind she already brings it up in the paper hahahaha
+
+
+## Second round of papers 
