@@ -1,5 +1,5 @@
 ```dataview
 table related
-from "definitions"
+from "Thesis/master_thesis/notes/definitions"
 sort term asc
 ```
