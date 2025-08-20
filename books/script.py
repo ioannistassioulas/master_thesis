@@ -54,8 +54,6 @@ class MPO_TFI():
     def mpo(self):
         MPO = np.zeros((2, 2, 9, 9))
 
-
-
         # All interactions
         MPO[:,:,0, 0] = MPO_TFI.Id
         MPO[:,:,0, 1] =  self.k * MPO_TFI.X
