@@ -18,6 +18,64 @@ path_mps = 'MPS'
 path_cont = 'CONT'
 path_out = 'OUT/'
 
+class MPO_TFI():
+    
+    Id = np.identity(2)
+    X = np.array([0, 1], [1, 0])
+    Y = np.array([0, 0-1j], [0+1j, 0])
+    Z = np.array([1, 0], [0, -1])
+    
+    def __init__(self, t, k):
+        self.t = t
+        self.k = k
+
+    def Wl(self):
+        Wleft = np.zeros((2, 2, 9))
+        Wleft = np.zeros((2, 2, 9))
+        Wleft[:, :, 0] = MPO_TFI.Id
+        Wleft[:, :, 1] = MPO_TFI.X
+        Wleft[:, :, 2] = MPO_TFI.Y
+        Wleft[:, :, 3] = MPO_TFI.Z
+        Wleft[:, :, 8] = self.h * MPO_TFI.Z
+
+        return Wleft
+    
+    def Wr(self):
+        Wright = np.zeros((2, 2, 9))
+        Wright[:, :, 0] = self.h * MPO_TFI.Z
+        Wright[:, :, 5] = MPO_TFI.Z
+        Wright[:, :, 6] = MPO_TFI.Y
+        Wright[:, :, 7] = MPO_TFI.X
+        Wright[:, :, 8] = MPO_TFI.Id
+
+
+        return Wright
+    
+    def mpo(self):
+        MPO = np.zeros((2, 2, 9, 9))
+
+
+
+        # All interactions
+        MPO[:,:,0, 0] = MPO_TFI.Id
+        MPO[:,:,0, 1] =  self.k * MPO_TFI.X
+        MPO[:,:,0, 2] = -self.k * MPO_TFI.Z
+        MPO[:,:,0, 3] =  self.k * MPO_TFI.X
+        MPO[:,:,0, 4] = -self.k * MPO_TFI.Y
+        MPO[:,:,0, 7] =  self.t * MPO_TFI.X
+        MPO[:,:,0, 8] =  self.t * MPO_TFI.Z
+
+        MPO[:,:,1, 5] = MPO_TFI.Y
+        MPO[:,:,2, 7] = MPO_TFI.Y
+        MPO[:,:,3, 6] = MPO_TFI.Id
+        MPO[:,:,4, 7] = MPO_TFI.Id
+        MPO[:,:,5, 8] = MPO_TFI.Z
+        MPO[:,:,6, 8] = MPO_TFI.Y
+        MPO[:,:,7, 8] = MPO_TFI.X
+        MPO[:,:,8, 8] = MPO_TFI.Id
+
+        return MPO
+
 
 def TFIM_DMRG(h_min, h_max):
     # create folder out if not present
