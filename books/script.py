@@ -2,7 +2,7 @@
 
 # from dmrg import MPS, MPO_TFI, CONT, dmrg, observables
 from dmrg.MPS import MPS 
-from dmrg.MPO import MPO_TFI
+# from dmrg.MPO import MPO_TFI
 from dmrg.cont import CONT
 from dmrg.dmrg import dmrg
 from dmrg.obs import observables
@@ -12,6 +12,7 @@ import os
 import shutil
 import numpy as np
 import argparse
+from itertools import product
 
 # Define folders where to store simulation data
 path_mps = 'MPS'
@@ -21,13 +22,16 @@ path_out = 'OUT/'
 class MPO_TFI():
     
     Id = np.identity(2)
-    X = np.array([0, 1], [1, 0])
-    Y = np.array([0, 0-1j], [0+1j, 0])
-    Z = np.array([1, 0], [0, -1])
+    X = np.array([[0, 1], [1, 0]])
+    Y = np.array([[0, 0-1j], [0+1j, 0]])
+    Z = np.array([[1, 0], [0, -1]])
     
-    def __init__(self, t, k):
-        self.t = t
+    def __init__(self, h, k, J, pol=None, d=2):
+        self.h = h
         self.k = k
+        self.J = J
+        self.d = d
+        self.pol = pol
 
     def Wl(self):
         Wleft = np.zeros((2, 2, 9))
@@ -60,8 +64,8 @@ class MPO_TFI():
         MPO[:,:,0, 2] = -self.k * MPO_TFI.Z
         MPO[:,:,0, 3] =  self.k * MPO_TFI.X
         MPO[:,:,0, 4] = -self.k * MPO_TFI.Y
-        MPO[:,:,0, 7] =  self.t * MPO_TFI.X
-        MPO[:,:,0, 8] =  self.t * MPO_TFI.Z
+        MPO[:,:,0, 7] =  self.J * MPO_TFI.X
+        MPO[:,:,0, 8] =  self.h * MPO_TFI.Z
 
         MPO[:,:,1, 5] = MPO_TFI.Y
         MPO[:,:,2, 7] = MPO_TFI.Y
@@ -75,26 +79,30 @@ class MPO_TFI():
         return MPO
 
 
-def TFIM_DMRG(h_min, h_max):
+def TFIM_DMRG(h, k, count, J = 1):
     # create folder out if not present
     if os.path.isdir(path_out):
         shutil.rmtree(path_out)
     os.mkdir(path_out)
-    # Define the parameters, system size and bond dimension
-    par = np.linspace(h_min,h_max, int(10 * (h_max - h_min) + 1))
+
+    # Define the system size and bond dimension
     L = 50
     chi = 200
 
-    for h_x in par:
+    # Define parameters of h and k (look at all combinations)
+    par = list(product(np.linspace(0, h, count), np.linspace(-k, k, count+10)))
+
+
+    for h_x, k in par:
         # define the par output
-        path_par = path_out + f'out_{h_x:.2f}/' 
+        path_par = path_out + f'out_{h_x:.2f}_{k:.2f}/' 
         os.mkdir(path_par)
 
         # initialise the MPS for the indicated chain length
         mps = MPS(L)
 
         # define the MPO 
-        h = MPO_TFI(J=1,h_x=h_x,pol='tot')
+        h = MPO_TFI(h=h_x,k=k, J=J, pol='tot')
 
         # define the contractions (it needs an mps and a MPO class as imputs)
         cont = CONT(mps=mps,H=h)
@@ -121,7 +129,7 @@ def TFIM_DMRG(h_min, h_max):
                 f.write(f'{E} \n')
 
         # Set up counter and energy check
-        k = 0 
+        counter = 0
         En_temp = np.zeros(2*L-8)
         En_temp[0] = En[-1]
 
@@ -138,10 +146,10 @@ def TFIM_DMRG(h_min, h_max):
                 j +=1
 
             # set maximum number of sweeps
-            if k > 5:
+            if counter > 5:
                 break
             
-            k += 1
+            counter += 1
 
         # define observables
         obs = observables(mps)
@@ -163,14 +171,15 @@ def TFIM_DMRG(h_min, h_max):
             obs.all_corr(path_par + 'ZZ.txt',site,obs1=h.Z)
 
 
-        print(f'Parameter {h_x:.2f} done !!!')
+        print(f'Parameter ({h_x:.2f}, {k:.2f}) done !!!')
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("h_min", type=float)
-    parser.add_argument("h_max", type=float)
+    parser.add_argument("h", type=float)
+    parser.add_argument("k", type=float)
+    parser.add_argument("count", type=int)
     
     args = parser.parse_args()
 
-    TFIM_DMRG(args.h_min, args.h_max)
+    TFIM_DMRG(args.h, args.k, args.count)
