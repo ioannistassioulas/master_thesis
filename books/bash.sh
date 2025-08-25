@@ -13,7 +13,7 @@ module load python/3.10.12
 
 source ~/venvs/dmrg_example/bin/activate
 
-SIM_NAME="tfim_test"
+SIM_NAME="Sim: h=0,2;k=-2,2;j=1"
 SCRATCH_DIR="/scratch/${USER}/${SIM_NAME}_${SLURM_JOB_ID}"
 mkdir -p "$SCRATCH_DIR"
 
@@ -23,4 +23,4 @@ cp "$SLURM_SUBMIT_DIR/script.py" .
 #SBATCH --output=/scratch/%u/${SIM_NAME}_%j/slurm_%j.out
 #SBATCH --error=/scratch/%u/${SIM_NAME}_%j/slurm_%j.err
 
-srun python3 script.py 0.1 2.1
+srun python3 script.py 2 2 11
