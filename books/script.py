@@ -90,7 +90,7 @@ def TFIM_DMRG(h, k, count, J = 1):
     chi = 200
 
     # Define parameters of h and k (look at all combinations)
-    par = list(product(np.linspace(0, h, count), np.linspace(-k, k, count+10)))
+    par = list(product(np.arange(0, 1.1, 0.2), np.linspace(-k, k, count+10)))
 
 
     for h_x, k in par:
