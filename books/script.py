@@ -30,8 +30,9 @@ class MPO_TFI():
         self.h = h
         self.k = k
         self.J = J
-        self.d = d
+
         self.pol = pol
+        self.d = d
 
     def Wl(self):
         Wleft = np.zeros((2, 2, 9))
@@ -97,17 +98,18 @@ def TFIM_DMRG(h, k, count, J = 1):
     par = list(product(np.linspace(0, h, count), np.linspace(-k, k, count+10)))
 
 
-    for h_x, k in par:
+    for h_x, k_x in par:
+        print(par)
         # define the par output
-        path_par = path_out + f'out_{h_x:.2f}_{k:.2f}/' 
+        path_par = path_out + f'out_{h_x:.2f}_{k_x:.2f}/' 
         os.mkdir(path_par)
 
         # initialise the MPS for the indicated chain length
         mps = MPS(L)
 
         # define the MPO 
-        h = MPO_TFI(h=h_x,k=k, J=J, pol='tot')
-
+        h = MPO_TFI(h=h_x,k=k_x, J=J, pol='tot')
+        print(k_x)
         # define the contractions (it needs an mps and a MPO class as imputs)
         cont = CONT(mps=mps,H=h)
 
@@ -175,7 +177,7 @@ def TFIM_DMRG(h, k, count, J = 1):
             obs.all_corr(path_par + 'ZZ.txt',site,obs1=h.Z)
 
 
-        print(f'Parameter ({h_x:.2f}, {k:.2f}) done !!!')
+        print(f'Parameter ({h_x:.2f}, {k_x:.2f}) done !!!')
 
 if __name__ == "__main__":
 
