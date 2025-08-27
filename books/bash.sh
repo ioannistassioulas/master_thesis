@@ -19,7 +19,7 @@ source ~/venvs/dmrg_example/bin/activate
 
 echo "Using python from: $(which python)"
 
-SIM_NAME="$(date '+%Y-%m-%d')::hx=(0, 1);k =(-2, 2);J = 1"
+SIM_NAME="$(date)"
 SCRATCH_DIR="/scratch/${USER}/${SIM_NAME}_${SLURM_JOB_ID}"
 mkdir -p "$SCRATCH_DIR"
 
@@ -30,6 +30,6 @@ ls "$SLURM_SUBMIT_DIR"
 cp "$SLURM_SUBMIT_DIR/script.py" .
 
 echo "Running Python script with arguments 1 2 11"
-srun python3 script.py 1 2 11
+srun python3 script.py 2 2 11
 
 echo "Job completed at $(date)"

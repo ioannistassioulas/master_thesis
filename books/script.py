@@ -35,12 +35,14 @@ class MPO_TFI():
 
     def Wl(self):
         Wleft = np.zeros((2, 2, 9))
-        Wleft = np.zeros((2, 2, 9))
         Wleft[:, :, 0] = MPO_TFI.Id
         Wleft[:, :, 1] = MPO_TFI.X
         Wleft[:, :, 2] = MPO_TFI.Y
         Wleft[:, :, 3] = MPO_TFI.Z
         Wleft[:, :, 8] = self.h * MPO_TFI.Z
+
+        if self.pol == 'tot':
+            Wleft[:,:,8] -= 25*MPO_TFI.X
 
         return Wleft
     
@@ -52,6 +54,8 @@ class MPO_TFI():
         Wright[:, :, 7] = MPO_TFI.X
         Wright[:, :, 8] = MPO_TFI.Id
 
+        if self.pol == 'tot':
+            Wright[:,:,0] += 25*MPO_TFI.X
 
         return Wright
     
@@ -90,7 +94,7 @@ def TFIM_DMRG(h, k, count, J = 1):
     chi = 200
 
     # Define parameters of h and k (look at all combinations)
-    par = list(product(np.arange(0, 1.1, 0.2), np.linspace(-k, k, count+10)))
+    par = list(product(np.linspace(0, h, count), np.linspace(-k, k, count+10)))
 
 
     for h_x, k in par:
