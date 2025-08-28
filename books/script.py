@@ -43,7 +43,7 @@ class MPO():
         Wleft[:, :, 8] = self.h * MPO.Z
 
         if self.pol == 'tot':
-            Wleft[:,:,8] -= 25*MPO.X
+            Wleft[:,:,8] += 25*MPO.X
 
         return Wleft
     
@@ -91,7 +91,7 @@ def TFIM_DMRG(h, k, count, pol, J = 1):
     os.mkdir(path_out)
 
     # Define the system size and bond dimension
-    L = 50
+    L = 101
     chi = 200
 
     # Define parameters of h and k (look at all combinations)
@@ -108,7 +108,7 @@ def TFIM_DMRG(h, k, count, pol, J = 1):
 
         # define the MPO 
         h = MPO(h=h_x,k=k_x, J=J, pol=pol)
-        print(k_x)
+
         # define the contractions (it needs an mps and a MPO class as imputs)
         cont = CONT(mps=mps,H=h)
 
