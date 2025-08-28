@@ -19,7 +19,7 @@ path_mps = 'MPS'
 path_cont = 'CONT'
 path_out = 'OUT/'
 
-class MPO_TFI():
+class MPO():
     
     Id = np.identity(2)
     X = np.array([[0, 1], [1, 0]])
@@ -36,27 +36,27 @@ class MPO_TFI():
 
     def Wl(self):
         Wleft = np.zeros((2, 2, 9))
-        Wleft[:, :, 0] = MPO_TFI.Id
-        Wleft[:, :, 1] = MPO_TFI.X
-        Wleft[:, :, 2] = MPO_TFI.Y
-        Wleft[:, :, 3] = MPO_TFI.Z
-        Wleft[:, :, 8] = self.h * MPO_TFI.Z
+        Wleft[:, :, 0] = MPO.Id
+        Wleft[:, :, 1] = MPO.X
+        Wleft[:, :, 2] = MPO.Y
+        Wleft[:, :, 3] = MPO.Z
+        Wleft[:, :, 8] = self.h * MPO.Z
 
         if self.pol == 'tot':
-            Wleft[:,:,8] -= 25*MPO_TFI.X
+            Wleft[:,:,8] -= 25*MPO.X
 
         return Wleft
     
     def Wr(self):
         Wright = np.zeros((2, 2, 9))
-        Wright[:, :, 0] = self.h * MPO_TFI.Z
-        Wright[:, :, 5] = MPO_TFI.Z
-        Wright[:, :, 6] = MPO_TFI.Y
-        Wright[:, :, 7] = MPO_TFI.X
-        Wright[:, :, 8] = MPO_TFI.Id
+        Wright[:, :, 0] = self.h * MPO.Z
+        Wright[:, :, 5] = MPO.Z
+        Wright[:, :, 6] = MPO.Y
+        Wright[:, :, 7] = MPO.X
+        Wright[:, :, 8] = MPO.Id
 
         if self.pol == 'tot':
-            Wright[:,:,0] += 25*MPO_TFI.X
+            Wright[:,:,0] += 25*MPO.X
 
         return Wright
     
@@ -64,22 +64,22 @@ class MPO_TFI():
         MPO = np.zeros((2, 2, 9, 9))
 
         # All interactions
-        MPO[:,:,0, 0] = MPO_TFI.Id
-        MPO[:,:,0, 1] =  self.k * MPO_TFI.X
-        MPO[:,:,0, 2] = -self.k * MPO_TFI.Z
-        MPO[:,:,0, 3] =  self.k * MPO_TFI.X
-        MPO[:,:,0, 4] = -self.k * MPO_TFI.Y
-        MPO[:,:,0, 7] =  self.J * MPO_TFI.X
-        MPO[:,:,0, 8] =  self.h * MPO_TFI.Z
+        MPO[:,:,0, 0] = MPO.Id
+        MPO[:,:,0, 1] =  self.k * MPO.X
+        MPO[:,:,0, 2] = -self.k * MPO.Z
+        MPO[:,:,0, 3] =  self.k * MPO.X
+        MPO[:,:,0, 4] = -self.k * MPO.Y
+        MPO[:,:,0, 7] =  self.J * MPO.X
+        MPO[:,:,0, 8] =  self.h * MPO.Z
 
-        MPO[:,:,1, 5] = MPO_TFI.Y
-        MPO[:,:,2, 7] = MPO_TFI.Y
-        MPO[:,:,3, 6] = MPO_TFI.Id
-        MPO[:,:,4, 7] = MPO_TFI.Id
-        MPO[:,:,5, 8] = MPO_TFI.Z
-        MPO[:,:,6, 8] = MPO_TFI.Y
-        MPO[:,:,7, 8] = MPO_TFI.X
-        MPO[:,:,8, 8] = MPO_TFI.Id
+        MPO[:,:,1, 5] = MPO.Y
+        MPO[:,:,2, 7] = MPO.Y
+        MPO[:,:,3, 6] = MPO.Id
+        MPO[:,:,4, 7] = MPO.Id
+        MPO[:,:,5, 8] = MPO.Z
+        MPO[:,:,6, 8] = MPO.Y
+        MPO[:,:,7, 8] = MPO.X
+        MPO[:,:,8, 8] = MPO.Id
 
         return MPO
 
@@ -107,7 +107,7 @@ def TFIM_DMRG(h, k, count, pol, J = 1):
         mps = MPS(L)
 
         # define the MPO 
-        h = MPO_TFI(h=h_x,k=k_x, J=J, pol=pol)
+        h = MPO(h=h_x,k=k_x, J=J, pol=pol)
         print(k_x)
         # define the contractions (it needs an mps and a MPO class as imputs)
         cont = CONT(mps=mps,H=h)
@@ -151,7 +151,7 @@ def TFIM_DMRG(h, k, count, pol, J = 1):
                 j +=1
 
             # set maximum number of sweeps
-            if counter > 5:
+            if counter > 8:
                 break
             
             counter += 1
