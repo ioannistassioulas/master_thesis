@@ -30,6 +30,6 @@ ls "$SLURM_SUBMIT_DIR"
 cp "$SLURM_SUBMIT_DIR/script.py" .
 
 echo "Running Python script with arguments 1 2 11"
-srun python3 script.py 2 2 11
+srun python3 script.py 2 2 11 tot
 
 echo "Job completed at $(date)"

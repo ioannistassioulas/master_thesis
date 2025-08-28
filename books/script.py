@@ -84,7 +84,7 @@ class MPO_TFI():
         return MPO
 
 
-def TFIM_DMRG(h, k, count, J = 1):
+def TFIM_DMRG(h, k, count, pol, J = 1):
     # create folder out if not present
     if os.path.isdir(path_out):
         shutil.rmtree(path_out)
@@ -99,7 +99,6 @@ def TFIM_DMRG(h, k, count, J = 1):
 
 
     for h_x, k_x in par:
-        print(par)
         # define the par output
         path_par = path_out + f'out_{h_x:.2f}_{k_x:.2f}/' 
         os.mkdir(path_par)
@@ -108,7 +107,7 @@ def TFIM_DMRG(h, k, count, J = 1):
         mps = MPS(L)
 
         # define the MPO 
-        h = MPO_TFI(h=h_x,k=k_x, J=J, pol='tot')
+        h = MPO_TFI(h=h_x,k=k_x, J=J, pol=pol)
         print(k_x)
         # define the contractions (it needs an mps and a MPO class as imputs)
         cont = CONT(mps=mps,H=h)
@@ -185,7 +184,8 @@ if __name__ == "__main__":
     parser.add_argument("h", type=float)
     parser.add_argument("k", type=float)
     parser.add_argument("count", type=int)
+    parser.add_argument("pol", type=str)
     
     args = parser.parse_args()
 
-    TFIM_DMRG(args.h, args.k, args.count)
+    TFIM_DMRG(args.h, args.k, args.count, args.pol)
