@@ -35,7 +35,7 @@ class MPO():
         self.d = d
 
     def Wl(self):
-        Wleft = np.zeros((2, 2, 9))
+        Wleft = np.zeros((2, 2, 9),dtype='complex')
         Wleft[:, :, 0] = MPO.Id
         Wleft[:, :, 1] = MPO.X
         Wleft[:, :, 2] = MPO.Y
@@ -48,7 +48,7 @@ class MPO():
         return Wleft
     
     def Wr(self):
-        Wright = np.zeros((2, 2, 9))
+        Wright = np.zeros((2, 2, 9),dtype='complex')
         Wright[:, :, 0] = self.h * MPO.Z
         Wright[:, :, 5] = MPO.Z
         Wright[:, :, 6] = MPO.Y
@@ -61,7 +61,7 @@ class MPO():
         return Wright
     
     def mpo(self):
-        MPO = np.zeros((2, 2, 9, 9))
+        MPO = np.zeros((2, 2, 9, 9),dtype='complex')
 
         # All interactions
         MPO[:,:,0, 0] = MPO.Id
