@@ -17,11 +17,16 @@ path_cont = 'CONT'
 path_out = 'OUT/'
 
 def dmrg_lines(h, k, step, axis):
-    par = [(i, k) for i in np.arange(0, h+step, step)] if axis == "h" else [(h, i) for i in np.arange(0, k+step, step)]
+    
+    if axis is 'h': 
+        par = [(i, k) for i in np.arange(0, h+step, step)]
+    elif axis is 'k': 
+        par = [(h, i) for i in np.arange(0, k+step, step)]
+    elif axis is 'p': 
+        par = (h, k)
+    else: return None
+    
     return par
-
-def dmrg_point(h, k):
-    return (h, k)
 
 def dmrg_main(par, pol, J = 1):
     # create folder out if not present
@@ -30,7 +35,7 @@ def dmrg_main(par, pol, J = 1):
     os.mkdir(path_out)
 
     # Define the system size and bond dimension
-    L = 20
+    L = 50
     chi = 200
 
     for h_x, k_x in par:
