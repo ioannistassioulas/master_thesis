@@ -13,19 +13,17 @@ import numpy as np
 import argparse
 # from itertools import product
 
-
-
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("h", type=float)
     parser.add_argument("k", type=float)
-    parser.add_argument("steps", type=float)
+    parser.add_argument("step", type=float)
     parser.add_argument("pol", type=str)
     parser.add_argument("axis", type=str)
     
     args = parser.parse_args()
 
     #
-    dmrg_main_lines(args.h, args.k, args.steps, args.pol, args.axis)
+    parameter = dmrg_lines(args.h, args.k, args.step, args.axis) # define whicg parameters the simulation will run
+    dmrg_main(parameter, args.pol)
