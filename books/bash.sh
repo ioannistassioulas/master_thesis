@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#SBATCH --job-name="MPO_First_Round"
+#SBATCH --job-name="Lines of k"
 #SBATCH --partition=compute
 #SBATCH --time=12:00:00
 #SBATCH --ntasks=1
@@ -30,6 +30,6 @@ ls "$SLURM_SUBMIT_DIR"
 cp "$SLURM_SUBMIT_DIR/script.py" .
 
 echo "Running Python script with arguments 1 2 11"
-srun python3 script.py 2 2 11 tot
+srun python3 script.py 0 2 0.1 tot h
 
 echo "Job completed at $(date)"
