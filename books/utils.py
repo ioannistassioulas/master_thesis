@@ -12,18 +12,22 @@ from utils import *
 # all of my own defined classes (including observables and mpos) I leave here
 
 # Define folders where to store simulation data
-path_mps = 'MPS'
-path_cont = 'CONT'
-path_out = 'OUT/'
+
+path = '0_0'
+os.mkdir(path)
+
+path_mps = os.path.join(path, 'MPS')
+path_cont = os.path.join(path,'CONT')
+path_out = os.path.join(path,'OUT/')
 
 def dmrg_lines(h, k, step, axis):
     
-    if axis is 'h': 
+    if axis == 'h': 
         par = [(i, k) for i in np.arange(0, h+step, step)]
-    elif axis is 'k': 
+    elif axis == 'k': 
         par = [(h, i) for i in np.arange(0, k+step, step)]
-    elif axis is 'p': 
-        par = (h, k)
+    elif axis == 'p': 
+        par = [(h, k)]
     else: return None
     
     return par
@@ -35,9 +39,9 @@ def dmrg_main(par, pol, J = 1):
     os.mkdir(path_out)
 
     # Define the system size and bond dimension
-    L = 50
+    L = 40
     chi = 200
-
+    print(par)
     for h_x, k_x in par:
         # define the par output
         path_par = path_out + f'out_{h_x:.2f}_{k_x:.2f}/' 
@@ -91,7 +95,7 @@ def dmrg_main(par, pol, J = 1):
                 j +=1
 
             # set maximum number of sweeps
-            if counter > 8:
+            if counter > 5:
                 break
             
             counter += 1
@@ -156,7 +160,7 @@ class MPO_main():
         Wright[:, :, 8] = MPO_main.Id
 
         if self.pol == 'tot':
-            Wright[:,:,0] += 25*MPO_main.X
+            Wright[:,:,0] -= 25*MPO_main.X
 
         return Wright
     
