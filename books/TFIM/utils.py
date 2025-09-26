@@ -21,7 +21,7 @@ path_out = os.path.join(path,'OUT/')
 def dmrg_lines(param, step, axis):
     
     if axis == 'h': 
-        par = [(i, param) for i in np.arange(0, 2+step, step)]
+        par = [(i+1, param) for i in np.arange(0, 1+step, step)]
     elif axis == 'k': 
         par = [(param, i) for i in np.arange(0, 2+step, step)]
     else: return None
