@@ -36,7 +36,7 @@ def dmrg_main(par, pol, J = 1):
     os.mkdir(path_out)
 
     # Define the system size and bond dimension
-    L = 60
+    L = 10
     chi = 200
 
     for h_x, k_x in par:

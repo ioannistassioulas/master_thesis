@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    ## for lines
+    # for lines
     # parser.add_argument("param", type=float)
     # parser.add_argument("step", type=float)
     # parser.add_argument("axis", type=str)
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    ## for lines
+    # for lines
     # parameter = dmrg_lines(args.param, args.step, args.axis) # define whicg parameters the simulation will run
     # dmrg_main(parameter, args.pol)
 
