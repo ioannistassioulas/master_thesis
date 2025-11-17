@@ -9,8 +9,10 @@ import os
 def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
     '''Perform exact diagonalization across a line on the parameter space of your phase diagram'''
 
-    folder = f"L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}"
-    os.mkdir(folder)
+    folder_eigenstates = f"L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_states"
+    folder_eigenvalues = f"L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_values"
+    os.mkdir(folder_eigenstates)
+    os.mkdir(folder_eigenvalues)
     for ind, val in tqdm(enumerate(values)):
         # determine h and k
         if scan_var == "h":
@@ -48,8 +50,8 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
         psi = V[:, 0]  # ground state
 
         # write it in a .txt file for easy access
-        file_name = os.path.join(os.getcwd(), folder, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate")
-        np.savetxt(file_name, psi)
+        np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate"), psi)
+        np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_energies"), E)
 
 
 # --- Taking measurements ---
