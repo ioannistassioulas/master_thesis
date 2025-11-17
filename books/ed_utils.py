@@ -174,7 +174,22 @@ def plot_correlator(op, values, measurements, scan_var, opp, set, orientation="s
     plt.grid()
     plt.show()
 
+def plot_entropy(single_site, half_chain, scan_var, values, opp, set):
+    fig, ax = plt.subplots(1, 2, figsize=(16, 10))
+    fig.suptitle("Entropy")
+    for i, v in enumerate(values):
+        ax[0].plot(single_site[i], label=f"{scan_var}={v:.2f}")
+    ax[0].set_title(f"Single-site entanglement entropy for {opp}={set}")
 
+
+    ax[1].plot(values, half_chain, "-o")
+    ax[1].set_title(f"Half-chain entanglement vs {scan_var}")
+    ax[1].set_xlabel(f"{scan_var}")
+    ax[1].set_ylabel("S_half")
+
+    plt.legend()
+    plt.grid()
+    plt.show()
 # import numpy as np
 # import matplotlib.pyplot as plt
 # import scipy.sparse as sp
