@@ -8,9 +8,11 @@ import os
 # --- Finding GS ---
 def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
     '''Perform exact diagonalization across a line on the parameter space of your phase diagram'''
+    if not os.path.exists("ed_results"):
+        os.mkdir("ed_results")
 
-    folder_eigenstates = f"L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_states"
-    folder_eigenvalues = f"L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_values"
+    folder_eigenstates = f"ed_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_states"
+    folder_eigenvalues = f"ed_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_values"
     os.mkdir(folder_eigenstates)
     os.mkdir(folder_eigenvalues)
     for ind, val in tqdm(enumerate(values)):
@@ -48,13 +50,13 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
         H = hamiltonian(static, [], basis=basis, dtype=np.complex128, check_symm=False, check_herm=False)
         E, V = H.eigh()
         psi = V[:, 0]  # ground state
-
+        print(psi.shape)
         # write it in a .txt file for easy access
         np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate"), psi)
-        np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_energies"), E)
+        np.savetxt(os.path.join(os.getcwd(), folder_eigenvalues, f"{opp}{set:.2f}_{scan_var}{val:.2f}_energies"), E)
 
 
-# --- Taking measurements ---
+# --- Magnetization ---
 def magnetization_string(op, psi, basis):
     '''Magnetization across entire string'''
     op_string = []
@@ -73,6 +75,7 @@ def magnetization_site(op, site, psi, basis):
 
     return expectation_value_mid
 
+# --- Correlation ---
 def correlator(op1, op2, i, j, psi, basis):
     '''Connected correlator defined as g(op1, op2) = <op1, op2> - <op1><op2>'''
     operators = [ [op1, [[1, i]]],
@@ -92,6 +95,7 @@ def correlator_string(op1, op2, central_site, psi, basis):
         if i > central_site: correlations.append(correlator(op1, op2, central_site, i, psi, basis))
     return correlations
 
+# --- Entanglement ---
 def entanglement_site(psi, basis):
     L = int(np.log2(len(psi)))
     mid = list(range(L//2))
