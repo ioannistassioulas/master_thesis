@@ -2,7 +2,60 @@ from quspin.basis import spin_basis_1d
 from quspin.operators import hamiltonian
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+import os
 
+# --- Finding GS ---
+def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
+    '''Perform exact diagonalization across a line on the parameter space of your phase diagram'''
+    if not os.path.exists("ed_results"):
+        os.mkdir("ed_results")
+
+    folder_eigenstates = f"ed_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_states"
+    folder_eigenvalues = f"ed_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_values"
+    os.mkdir(folder_eigenstates)
+    os.mkdir(folder_eigenvalues)
+    for ind, val in tqdm(enumerate(values)):
+        # determine h and k
+        if scan_var == "h":
+            h = val
+            k_l = k_r = set
+        else:
+            h = set     # fixed field, change if needed
+            k_l = k_r = val
+
+        # --- Hamiltonian ---
+        # polarized boundary conditions
+        strength = 1e-1
+        pol_bc = [[strength, 0], [-1**L * strength, L-1]]
+
+        J_term = [[J, i, i+1] for i in range(L-1)]   
+        h_term = [[h, i] for i in range(L)]  
+
+        xy_term = [[k_r, i, i+2] for i in range(L-2)]
+        yx_term = [[-k_l, i, i+2] for i in range(L-2)]
+        xyz_term = [[k_l, i, i+1, i+2] for i in range(L-2)]
+        zyx_term = [[-k_r, i, i+1, i+2] for i in range(L-2)]
+
+        static = [
+            ["xx", J_term],
+            ["z",  h_term],
+            ["x", pol_bc],
+            ["xy", xy_term],
+            ["yx", yx_term],
+            ["xyz", xyz_term],
+            ["zyx", zyx_term]
+        ]
+
+        H = hamiltonian(static, [], basis=basis, dtype=np.complex128, check_symm=False, check_herm=False)
+        E, V = H.eigh()
+        psi = V[:, 0]  # ground state
+
+        # write it in a .txt file for easy access
+        np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate"), psi)
+        np.savetxt(os.path.join(os.getcwd(), folder_eigenvalues, f"{opp}{set:.2f}_{scan_var}{val:.2f}_energies"), E)
+
+# --- Magnetization ---
 def magnetization_string(op, psi, basis):
     '''Magnetization across entire string'''
     op_string = []
@@ -12,7 +65,6 @@ def magnetization_string(op, psi, basis):
         operator = hamiltonian([[op, [[1.0, i]]]], [], basis=basis, check_symm=False, check_herm=False)
         mx = np.real_if_close(psi.conj() @ (operator.dot(psi)))
         op_string.append(mx)
-
     return op_string
 
 def magnetization_site(op, site, psi, basis):
@@ -22,17 +74,50 @@ def magnetization_site(op, site, psi, basis):
 
     return expectation_value_mid
 
+# --- Correlation ---
 def correlator(op1, op2, i, j, psi, basis):
     '''Connected correlator defined as g(op1, op2) = <op1, op2> - <op1><op2>'''
-    corr = hamiltonian([[op1, [[1, i]]], [[op2, [[1, j]]]]], [], basis=basis, check_symm=False, check_herm=False)
-    connected_correlator = corr - (magnetization_site(op1, i, psi, basis) * magnetization_site(op2, j, psi, basis))
+    operators = [ [op1, [[1, i]]],
+                  [op2, [[1, j]]]
+                 ]
+    corr_op = hamiltonian(operators, [], basis=basis, check_symm=False, check_herm=False)
+    corr = np.real_if_close(psi.conj() @ corr_op.dot(psi))
+    connected_correlator = np.real(corr - (magnetization_site(op1, i, psi, basis) * magnetization_site(op2, j, psi, basis)))
 
     return connected_correlator
+
+def correlator_string(op1, op2, central_site, psi, basis):
+    L = int(np.log2(len(psi)))
+
+    correlations = []
+    for i in range(L):
+        if i > central_site: correlations.append(correlator(op1, op2, central_site, i, psi, basis))
+    return correlations
+
+# --- Entanglement ---
+def entanglement_site(psi, basis):
+    L = int(np.log2(len(psi)))
+    mid = list(range(L//2))
+    ent_mid = basis.ent_entropy(psi, sub_sys_A=mid)["Sent_A"]
+    return ent_mid
+
+def entanglement_string(psi, basis):
+    s_sites = []
+    L = int(np.log2(len(psi)))
+
+    for i in range(L):
+        ent = basis.ent_entropy(psi, sub_sys_A=[i])
+        s_sites.append(ent["Sent_A"])
+
+    return s_sites
 
 # ----- plotting ----- #
 def plot_site(op, values, site_measurements, scan_var, opp, set):
     '''Plot the given results of a site for a range of parameters'''
-    plt.figure(figsize=(6,4))
+    cmap = plt.cm.viridis
+    color = cmap(0.6)
+
+    plt.plot(values, site_measurements, "-o", color=color)
     plt.plot(values, site_measurements, "-o")
     plt.title(f"Mid-chain magnetization of {op} vs {scan_var} at {opp}={set}")
     plt.xlabel(scan_var)
@@ -43,8 +128,17 @@ def plot_string(op, values, string_measurements, scan_var, opp, set):
     '''Plot the results of the magnetization string'''
     plt.figure(figsize=(6,4))
 
-    for ind, v in enumerate(values):
-        plt.plot(range(len(string_measurements.T)), string_measurements[ind], "-o", label=f"{scan_var}={v:.2f}")
+    cmap = plt.cm.viridis  # choose any: plasma, inferno, turbo, etc.
+    colors = cmap(np.linspace(0, 1, len(values)))
+
+    for ind, (v, c) in enumerate(zip(values, colors)):
+        plt.plot(
+            range(len(string_measurements.T)),
+            string_measurements[ind],
+            "-o",
+            color=c,
+            label=f"{scan_var}={v:.2f}"
+        )
     
     plt.title(f"Magnetization {op} (full string) for {opp}={set}")
     plt.xlabel("Site index")
@@ -53,10 +147,48 @@ def plot_string(op, values, string_measurements, scan_var, opp, set):
     plt.grid()
     plt.show()
 
-def plot_correlator(op1, op2, values, measurements, scan_var, opp, set, orientation="semilogy"):
+def plot_correlator(op, values, measurements, scan_var, opp, set, orientation="semilogy"):
     '''Plot the correlation'''
     plt.figure(figsize=(6, 4))
 
+    cmap = plt.cm.viridis
+    colors = cmap(np.linspace(0, 1, len(values)))
+
+    for ind, (v, c) in enumerate(zip(values, colors)):
+        x = range(len(measurements.T))
+        y = np.abs(measurements[ind])
+        label = f"{scan_var}={v:.2f}"
+
+        if orientation == "semilogy":
+            plt.semilogy(x, y, "-o", color=c, label=label)
+        elif orientation == "loglog":
+            plt.loglog(x, y, "-o", color=c, label=label)
+        else:
+            plt.plot(x, y, "-o", color=c, label=label)
+    
+    plt.title(f"Magnetization {op} (full string) for {opp}={set}")
+    plt.xlabel("Site index")
+    plt.ylabel(f"{op}")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+def plot_entropy(single_site, half_chain, scan_var, values, opp, set):
+    fig, ax = plt.subplots(1, 2, figsize=(16, 10))
+    fig.suptitle("Entropy")
+    for i, v in enumerate(values):
+        ax[0].plot(single_site[i], label=f"{scan_var}={v:.2f}")
+    ax[0].set_title(f"Single-site entanglement entropy for {opp}={set}")
+
+
+    ax[1].plot(values, half_chain, "-o")
+    ax[1].set_title(f"Half-chain entanglement vs {scan_var}")
+    ax[1].set_xlabel(f"{scan_var}")
+    ax[1].set_ylabel("S_half")
+
+    plt.legend()
+    plt.grid()
+    plt.show()
 
 # import numpy as np
 # import matplotlib.pyplot as plt
