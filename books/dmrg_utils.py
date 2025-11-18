@@ -195,7 +195,7 @@ def dmrg_main(L, par, pol, task_id = '0_0', J = 1):
 
     print(f'Parameter ({h_x:.3f}, {k_l:.3f}, {k_r:.3f}) done !!! Time elapsed: {hours:02}:{minutes:02}:{seconds:02}')
 
-def dmrg_line(L, pol, scan_var, values, opp, set, J=1):
+def dmrg_line(L, pol, scan_var, values, opp, set, home, J=1):
     ''' Perform a single line of parameter values for DMRG'''
 
     folder = f"dmrg_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}"
@@ -219,3 +219,4 @@ def dmrg_line(L, pol, scan_var, values, opp, set, J=1):
         dmrg_main(L, parameter, pol, task_id='.')
 
         os.chdir("../..")
+    os.chdir(home)
