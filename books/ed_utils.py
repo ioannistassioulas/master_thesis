@@ -55,7 +55,6 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
         np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate"), psi)
         np.savetxt(os.path.join(os.getcwd(), folder_eigenvalues, f"{opp}{set:.2f}_{scan_var}{val:.2f}_energies"), E)
 
-
 # --- Magnetization ---
 def magnetization_string(op, psi, basis):
     '''Magnetization across entire string'''
@@ -190,6 +189,7 @@ def plot_entropy(single_site, half_chain, scan_var, values, opp, set):
     plt.legend()
     plt.grid()
     plt.show()
+
 # import numpy as np
 # import matplotlib.pyplot as plt
 # import scipy.sparse as sp
