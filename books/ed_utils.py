@@ -79,6 +79,7 @@ def magnetization_string(op, psi, basis):
     '''Magnetization across entire string'''
     op_string = []
     L = int(np.log2(len(psi)))
+    print(f"length of string is {L}")
 
     for i in range(L):
         operator = hamiltonian([[op, [[1.0, i]]]], [], basis=basis, check_symm=False, check_herm=False)
@@ -134,7 +135,7 @@ def entanglement_string(psi, basis):
 
     return s_sites
 
-# ----- plotting ----- #
+# ----- Plotting ----- #
 def plot_site(dmrg_path, op, values, site_measurements_ed, scan_var, opp, set):
     '''Plot the given results of a site for a range of parameters'''
     cmap = plt.cm.inferno
@@ -146,6 +147,7 @@ def plot_site(dmrg_path, op, values, site_measurements_ed, scan_var, opp, set):
     loc = os.path.join(dmrg_path, f"*/OUT/*/{op}.txt")
 
     for i in sorted(glob.glob(loc)):
+        print(loc)
         r = np.loadtxt(i).T[1]
         if opp == "X":
             site_measurements_dmrg.append(0.5*(r[int(len(r)//2)]-r[int(len(r)//2)-1]))
