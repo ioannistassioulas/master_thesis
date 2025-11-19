@@ -1,5 +1,5 @@
 from quspin.basis import spin_basis_1d
-from quspin.operators import hamiltonian
+from quspin.operators import hamiltonian, quantum_LinearOperator
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -80,7 +80,7 @@ def magnetization_string(op, psi, basis):
     L = int(np.log2(len(psi)))
 
     for i in range(L):
-        operator = hamiltonian([[op, [[1.0, i]]]], [], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
+        operator = quantum_LinearOperator([[op, [[1.0, i]]]], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
         mx = np.real_if_close(psi.conj() @ (operator.dot(psi)))
         op_string.append(mx)
     return op_string
@@ -89,13 +89,13 @@ def magnetization_site(op, site, psi, basis, diff=False):
     '''Magnetization on singular site'''
 
     if diff:
-        op_mid = hamiltonian([[op, [[1, site]]]], [], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
-        op_mid2 = hamiltonian([[op, [[1, site+1]]]], [], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
-        expectation_value_mid = 0.5*(np.real_if_close(psi.conj() @ op_mid.dot(psi)) + np.real_if_close(psi.conj() @ op_mid2.dot(psi)))
+        op_mid = quantum_LinearOperator([[op, [[1, site]]]],  basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
+        op_mid2 = quantum_LinearOperator([[op, [[1, site+1]]]],  basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
+        expectation_value_mid = 0.5*(np.real_if_close(psi.conj() @ op_mid.dot(psi)) - np.real_if_close(psi.conj() @ op_mid2.dot(psi)))
 
     else:
         oper_mid = [[op, [[1, site]]]]
-        op_mid = hamiltonian(oper_mid, [], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
+        op_mid = quantum_LinearOperator(oper_mid, basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
         expectation_value_mid = np.real_if_close(psi.conj() @ op_mid.dot(psi))
 
     return expectation_value_mid
@@ -106,7 +106,7 @@ def correlator(op1, op2, i, j, psi, basis):
     operators = [ [op1, [[1, i]]],
                   [op2, [[1, j]]]
                  ]
-    corr_op = hamiltonian(operators, [], basis=basis, check_symm=False, check_herm=False, dtype=np.complex128)
+    corr_op = quantum_LinearOperator(operators,  basis=basis, check_symm=False, check_herm=False, dtype=np.complex128)
     corr = np.real_if_close(psi.conj() @ corr_op.dot(psi))
     connected_correlator = np.real(corr - (magnetization_site(op1, i, psi, basis) * magnetization_site(op2, j, psi, basis)))
 
@@ -122,7 +122,7 @@ def correlator_string(op1, op2, central_site, psi, basis):
     max_dist = L - central_site - 1   # e.g. 6 for L=14, central=7
     for d in range(max_dist):
         j = central_site + 1 + d
-        correlations[d] = correlator(op1, op2, central_site, j, psi, basis)
+        correlations[d] = (-1)**(d+1) * correlator(op1, op2, central_site, j, psi, basis)
 
     # remaining entries stay zero
     return correlations
@@ -224,8 +224,8 @@ def plot_correlator(dmrg_path, op, values, measurements_ed, scan_var, opp, set, 
     for ind, (v, c_ed, c_dmrg) in enumerate(zip(values, colors_ed, colors_dmrg)):
         # ED data
         L = measurements_ed.shape[1]
-        x_ed = np.arange(1, L+1)
         y_ed = np.abs(measurements_ed[ind])
+        x_ed = np.arange(1, len(y_ed)+1+1)
         label_ed = f"{scan_var}={v:.2f}"
 
         # DMRG data
@@ -239,8 +239,8 @@ def plot_correlator(dmrg_path, op, values, measurements_ed, scan_var, opp, set, 
 
         # Extract correlations starting from middle site
         for i, j, corr in r:
-            if i == L//2 and j > i:
-                x_dmrg.append(j - i - 1)
+            if i == L//2:
+                x_dmrg.append(j - i)
                 y_dmrg.append(np.abs(corr))
 
         # Plot depending on orientation
