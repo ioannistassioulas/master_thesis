@@ -67,9 +67,8 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1, bc="ob
         ]
 
         H = hamiltonian(static, [], basis=basis, dtype=np.complex128, check_symm=False, check_herm=False)
-        E, V = H.eigh()
-        psi = V[:, 0]  # ground state
-
+        E, psi = H.eigsh(k=1, which='SA')
+        psi = psi[:,0]
         # write it in a .txt file for easy access
         np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate"), psi)
         np.savetxt(os.path.join(os.getcwd(), folder_eigenvalues, f"{opp}{set:.2f}_{scan_var}{val:.2f}_energies"), E)
@@ -79,22 +78,25 @@ def magnetization_string(op, psi, basis):
     '''Magnetization across entire string'''
     op_string = []
     L = int(np.log2(len(psi)))
-    print(f"length of string is {L}")
 
     for i in range(L):
-        operator = hamiltonian([[op, [[1.0, i]]]], [], basis=basis, check_symm=False, check_herm=False)
+        operator = hamiltonian([[op, [[1.0, i]]]], [], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
         mx = np.real_if_close(psi.conj() @ (operator.dot(psi)))
         op_string.append(mx)
     return op_string
 
 def magnetization_site(op, site, psi, basis, diff=False):
     '''Magnetization on singular site'''
+
     if diff:
-        oper_mid = [[op, [[1, site], [1, site+1]]]]
+        op_mid = hamiltonian([[op, [[1, site]]]], [], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
+        op_mid2 = hamiltonian([[op, [[1, site+1]]]], [], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
+        expectation_value_mid = 0.5*(np.real_if_close(psi.conj() @ op_mid.dot(psi)) + np.real_if_close(psi.conj() @ op_mid2.dot(psi)))
+
     else:
         oper_mid = [[op, [[1, site]]]]
-    op_mid = hamiltonian(oper_mid, [], basis=basis, check_symm=False, check_herm=False)
-    expectation_value_mid = np.real_if_close(psi.conj() @ op_mid.dot(psi))
+        op_mid = hamiltonian(oper_mid, [], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
+        expectation_value_mid = np.real_if_close(psi.conj() @ op_mid.dot(psi))
 
     return expectation_value_mid
 
@@ -104,7 +106,7 @@ def correlator(op1, op2, i, j, psi, basis):
     operators = [ [op1, [[1, i]]],
                   [op2, [[1, j]]]
                  ]
-    corr_op = hamiltonian(operators, [], basis=basis, check_symm=False, check_herm=False)
+    corr_op = hamiltonian(operators, [], basis=basis, check_symm=False, check_herm=False, dtype=np.complex128)
     corr = np.real_if_close(psi.conj() @ corr_op.dot(psi))
     connected_correlator = np.real(corr - (magnetization_site(op1, i, psi, basis) * magnetization_site(op2, j, psi, basis)))
 
@@ -112,12 +114,18 @@ def correlator(op1, op2, i, j, psi, basis):
 
 def correlator_string(op1, op2, central_site, psi, basis):
     L = int(np.log2(len(psi)))
+    length = L // 2   # how many correlators you expect
+    
+    correlations = np.zeros(length)
 
-    correlations = []
-    for i in range(L):
-        if i > central_site: correlations.append(correlator(op1, op2, central_site, i, psi, basis))
+    # fill only the available distances:
+    max_dist = L - central_site - 1   # e.g. 6 for L=14, central=7
+    for d in range(max_dist):
+        j = central_site + 1 + d
+        correlations[d] = correlator(op1, op2, central_site, j, psi, basis)
+
+    # remaining entries stay zero
     return correlations
-
 # --- Entanglement ---
 def entanglement_site(psi, basis):
     L = int(np.log2(len(psi)))
@@ -147,10 +155,9 @@ def plot_site(dmrg_path, op, values, site_measurements_ed, scan_var, opp, set):
     loc = os.path.join(dmrg_path, f"*/OUT/*/{op}.txt")
 
     for i in sorted(glob.glob(loc)):
-        print(loc)
         r = np.loadtxt(i).T[1]
-        if opp == "X":
-            site_measurements_dmrg.append(0.5*(r[int(len(r)//2)]-r[int(len(r)//2)-1]))
+        if op == "X":
+            site_measurements_dmrg.append(0.5*(r[int(len(r)//2)]-r[int(len(r)//2)+1]))
         else:
             site_measurements_dmrg.append(r[int(len(r)//2)])
 
@@ -204,54 +211,6 @@ def plot_string(dmrg_path, op, values, string_measurements_ed, scan_var, opp, se
         plt.grid()
         plt.show()
 
-# def plot_correlator(dmrg_path, op, values, measurements_ed, scan_var, opp, set, orientation="semilogy"):
-#     '''Plot the correlation'''
-#     fig, ax = plt.subplots(1, 2, figsize=(10, 16))
-
-#     cmap = plt.cm.viridis  # choose any: plasma, inferno, turbo, etc.
-#     cmap2 = plt.cm.inferno
-#     colors = cmap(np.linspace(0, 1, len(values)))
-#     colors2 = cmap2(np.linspace(0, 1, len(values)))
-
-
-
-#     for ind, (v, c, c2) in enumerate(zip(values, colors, colors2)):
-#         L = len(measurements_ed.T)
-#         x_ed = np.arange(1, L+1, 1)
-#         y_ed = np.abs(measurements_ed[ind])
-#         label = f"{scan_var}={v:.2f}"
-
-#         if scan_var == "h":
-#             loc = os.path.join(dmrg_path, f"{v:.2f}_{set:.2f}_{set:.2f}/OUT/out_{v:.3f}_{set:.3f}_{set:.3f}/{op}.txt")
-#         else:
-#             loc = os.path.join(dmrg_path, f"{set:.2f}_{v:.2f}_{v:.2f}/OUT/out_{set:.3f}_{v:.3f}_{v:.3f}/{op}.txt")
-
-
-#         r = np.loadtxt(loc, dtype=np.complex128)
-#         x_dmrg, y_dmrg = [], []
-
-#         # extract correlations we're interested in
-#         for i, j, corr in r:  
-#             if i == L//2 and j > i:
-#                 x_dmrg.append(j-i-1)
-#                 y_dmrg.append(corr)
-
-#         if orientation == "semilogy":
-#             ax[0].semilogy(x_ed, y_ed, "-o", color=c, label="ED, " + label)
-#             ax[1].semilogy(x_dmrg, y_dmrg, "-x", color=c2, label="DMRG, " + label)
-#         elif orientation == "loglog":
-#             ax[0].loglog(x_ed, y_ed, "-o", color=c, label="ED, " + label)
-#             ax[1].loglog(x_dmrg, y_dmrg, "-x", color=c2, label="DMRG, " + label)
-#         else:
-#             ax[0].plot(x_ed, y_ed, "-o", color=c, label="ED, " + label)
-#             ax[1].plot(x_dmrg, y_dmrg, "-x", color=c2, label="DMRG, " + label)
-    
-#     fig.suptitle(f"Magnetization {op} (full string) for {opp}={set}")
-#     fig.xlabel("Site index")
-#     fig.ylabel(f"{op}")
-#     fig.legend()
-#     fig.grid()
-#     plt.show()
 def plot_correlator(dmrg_path, op, values, measurements_ed, scan_var, opp, set, orientation="semilogy"):
     fig, ax = plt.subplots(1, 2, figsize=(14, 6))
     fig.suptitle(f"Magnetization {op} (full string) for {opp}={set}", fontsize=16)

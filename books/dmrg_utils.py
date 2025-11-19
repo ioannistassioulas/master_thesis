@@ -142,7 +142,7 @@ def dmrg_main(L, par, pol, task_id = '0_0', J = 1):
 
     # Now we can sweep the system  (ideally until convergence)
     sweep = 0
-    while np.abs(En_temp[0] - En_temp[-1]) > 1e-7:
+    while sweep < 7:
         j = 0
         for site,dir in mps.sweep():
             En_temp[j],S,_ = sys.step2sites(site,dir=dir)
@@ -152,8 +152,7 @@ def dmrg_main(L, par, pol, task_id = '0_0', J = 1):
             j +=1
         # increase system bond dimension for more accuracy
         # sys.chi += 100 - adds too much computation time
-        if sweep > 4:
-            break
+
         sweep += 1
 
     # define observables
