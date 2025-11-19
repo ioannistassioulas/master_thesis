@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import os
+import glob
 
 # --- Finding GS ---
 def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
@@ -13,8 +14,13 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
 
     folder_eigenstates = f"ed_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_states"
     folder_eigenvalues = f"ed_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_values"
-    os.mkdir(folder_eigenstates)
-    os.mkdir(folder_eigenvalues)
+
+    if not os.path.exists(folder_eigenstates):
+        os.mkdir(folder_eigenstates)
+        os.mkdir(folder_eigenvalues)
+    else:
+        return 1
+    
     for ind, val in tqdm(enumerate(values)):
         # determine h and k
         if scan_var == "h":
@@ -112,32 +118,57 @@ def entanglement_string(psi, basis):
     return s_sites
 
 # ----- plotting ----- #
-def plot_site(op, values, site_measurements, scan_var, opp, set):
+def plot_site(dmrg_path, op, values, site_measurements_ed, scan_var, opp, set):
     '''Plot the given results of a site for a range of parameters'''
     cmap = plt.cm.viridis
+    cmap2 = plt.cm.inferno
     color = cmap(0.6)
+    color2 = cmap2(0.6)
+    L = int(len(values))
+    site_measurements_dmrg = []
+    loc = os.path.join(dmrg_path, f"*/OUT/*/{op}.txt")
+    for i in sorted(glob.glob(loc)):
+        r = np.loadtxt(i).T[1]
+        site_measurements_dmrg.append(r[int(len(r)//2) - 2])
 
-    plt.plot(values, site_measurements, "-o", color=color)
-    plt.plot(values, site_measurements, "-o")
+    plt.plot(values, site_measurements_ed, "-o", color=color, label="ED") # ED results
+    plt.plot(values, site_measurements_dmrg, "-x", color=color2, label="DMRG") # DMRG results
+
     plt.title(f"Mid-chain magnetization of {op} vs {scan_var} at {opp}={set}")
     plt.xlabel(scan_var)
     plt.grid()
     plt.show()
 
-def plot_string(op, values, string_measurements, scan_var, opp, set):
+def plot_string(dmrg_path, op, values, string_measurements_ed, scan_var, opp, set):
     '''Plot the results of the magnetization string'''
-    plt.figure(figsize=(6,4))
+    plt.figure(figsize=(12,8))
 
     cmap = plt.cm.viridis  # choose any: plasma, inferno, turbo, etc.
+    cmap2 = plt.cm.inferno
     colors = cmap(np.linspace(0, 1, len(values)))
+    colors2 = cmap2(np.linspace(0, 1, len(values)))
+    
+    for ind, (v, c, c2) in enumerate(zip(values, colors, colors2)):
+        if scan_var == "h":
+            loc = os.path.join(dmrg_path, f"{v:.2f}_{set:.2f}_{set:.2f}/OUT/out_{v:.3f}_{set:.3f}_{set:.3f}/{op}.txt")
+        else:
+            loc = os.path.join(dmrg_path, f"{set:.2f}_{v:.2f}_{v:.2f}/OUT/out_{set:.3f}_{v:.3f}_{v:.3f}/{op}.txt")
+        site_measurements_dmrg = np.loadtxt(loc).T[1]
 
-    for ind, (v, c) in enumerate(zip(values, colors)):
         plt.plot(
-            range(len(string_measurements.T)),
-            string_measurements[ind],
+            range(len(string_measurements_ed.T)),
+            string_measurements_ed[ind],
             "-o",
             color=c,
-            label=f"{scan_var}={v:.2f}"
+            label=f"ED, {scan_var}={v:.2f}"
+        )
+
+        plt.scatter(
+            np.arange(len(string_measurements_ed.T))[2:-2],
+            site_measurements_dmrg, 
+            marker="x",
+            color="black",
+            label=f"DMRG, {scan_var}={v:.2f}"
         )
     
     plt.title(f"Magnetization {op} (full string) for {opp}={set}")
@@ -147,24 +178,47 @@ def plot_string(op, values, string_measurements, scan_var, opp, set):
     plt.grid()
     plt.show()
 
-def plot_correlator(op, values, measurements, scan_var, opp, set, orientation="semilogy"):
+def plot_correlator(dmrg_path, op, values, measurements_ed, scan_var, opp, set, orientation="semilogy"):
     '''Plot the correlation'''
-    plt.figure(figsize=(6, 4))
+    plt.figure(figsize=(12, 8))
 
-    cmap = plt.cm.viridis
+    cmap = plt.cm.viridis  # choose any: plasma, inferno, turbo, etc.
+    cmap2 = plt.cm.inferno
     colors = cmap(np.linspace(0, 1, len(values)))
+    colors2 = cmap2(np.linspace(0, 1, len(values)))
 
-    for ind, (v, c) in enumerate(zip(values, colors)):
-        x = range(len(measurements.T))
-        y = np.abs(measurements[ind])
+
+
+    for ind, (v, c, c2) in enumerate(zip(values, colors, colors2)):
+        L = len(measurements_ed.T)
+        x_ed = np.arange(1, L+1, 1)
+        y_ed = np.abs(measurements_ed[ind])
         label = f"{scan_var}={v:.2f}"
 
-        if orientation == "semilogy":
-            plt.semilogy(x, y, "-o", color=c, label=label)
-        elif orientation == "loglog":
-            plt.loglog(x, y, "-o", color=c, label=label)
+        if scan_var == "h":
+            loc = os.path.join(dmrg_path, f"{v:.2f}_{set:.2f}_{set:.2f}/OUT/out_{v:.3f}_{set:.3f}_{set:.3f}/{op}.txt")
         else:
-            plt.plot(x, y, "-o", color=c, label=label)
+            loc = os.path.join(dmrg_path, f"{set:.2f}_{v:.2f}_{v:.2f}/OUT/out_{set:.3f}_{v:.3f}_{v:.3f}/{op}.txt")
+
+
+        r = np.loadtxt(loc, dtype=np.complex128)
+        x_dmrg, y_dmrg = [], []
+
+        # extract correlations we're interested in
+        for i, j, corr in r:  
+            if i == L//2 and j > i:
+                x_dmrg.append(j-i-1)
+                y_dmrg.append(corr)
+
+        if orientation == "semilogy":
+            plt.semilogy(x_ed, y_ed, "-o", color=c, label="ED, " + label)
+            plt.semilogy(x_dmrg, y_dmrg, "-x", color=c2, label="DMRG, " + label)
+        elif orientation == "loglog":
+            plt.loglog(x_ed, y_ed, "-o", color=c, label="ED, " + label)
+            plt.loglog(x_dmrg, y_dmrg, "-x", color=c2, label="DMRG, " + label)
+        else:
+            plt.plot(x_ed, y_ed, "-o", color=c, label="ED, " + label)
+            plt.plot(x_dmrg, y_dmrg, "-x", color=c2, label="DMRG, " + label)
     
     plt.title(f"Magnetization {op} (full string) for {opp}={set}")
     plt.xlabel("Site index")
@@ -173,7 +227,7 @@ def plot_correlator(op, values, measurements, scan_var, opp, set, orientation="s
     plt.grid()
     plt.show()
 
-def plot_entropy(single_site, half_chain, scan_var, values, opp, set):
+def plot_entropy(dmrg_path, single_site, half_chain, scan_var, values, opp, set):
     fig, ax = plt.subplots(1, 2, figsize=(16, 10))
     fig.suptitle("Entropy")
     for i, v in enumerate(values):
