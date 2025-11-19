@@ -56,7 +56,7 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1):
         H = hamiltonian(static, [], basis=basis, dtype=np.complex128, check_symm=False, check_herm=False)
         E, V = H.eigh()
         psi = V[:, 0]  # ground state
-        print(psi.shape)
+
         # write it in a .txt file for easy access
         np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate"), psi)
         np.savetxt(os.path.join(os.getcwd(), folder_eigenvalues, f"{opp}{set:.2f}_{scan_var}{val:.2f}_energies"), E)
