@@ -75,6 +75,7 @@ class MPO_main():
 
         return MPO
 
+
 def dmrg_main(L, par, pol, task_id = '0_0', J = 1):
 
     start_time = datetime.now()
@@ -199,7 +200,8 @@ def dmrg_line(L, pol, scan_var, values, opp, set, home, J=1):
     ''' Perform a single line of parameter values for DMRG'''
 
     folder = f"dmrg_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}"
-
+    if os.path.exists(os.path.join(os.getcwd(), folder)):
+        return 1
     # determine h and k
     for ind, val in tqdm(enumerate(values)):
         if scan_var == "h":
@@ -219,4 +221,6 @@ def dmrg_line(L, pol, scan_var, values, opp, set, home, J=1):
         dmrg_main(L, parameter, pol, task_id='.')
 
         os.chdir("../..")
+    
+    # go back home
     os.chdir(home)
