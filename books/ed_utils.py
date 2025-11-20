@@ -33,8 +33,8 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1, bc="ob
         # --- Hamiltonian ---
         if bc == "obc":
             # open boundary conditions
-            strength = 1e-1
-            pol_bc = [[strength, 0], [-1**L * strength, L-1]]
+            strength = 1e1
+            pol_bc = [[strength, 0], [(-1)**L * strength, L-1]]
 
             J_term = [[J, i, i+1] for i in range(L-1)]   
             h_term = [[h, i] for i in range(L)]  
@@ -45,7 +45,7 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1, bc="ob
             zyx_term = [[-k_r, i, i+1, i+2] for i in range(L-2)]
         else:
             # polarized boundary conditions
-            strength = 1e-1
+            strength = 1e1
             pol_bc = [[strength, 0], [-1**L * strength, L-1]]
 
             J_term = [[J, i, (i+1)% L] for i in range(L)]   
@@ -60,14 +60,16 @@ def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1, bc="ob
             ["xx", J_term],
             ["z",  h_term],
             ["x", pol_bc],
+            ["y", pol_bc],
+            ["z", pol_bc],
             ["xy", xy_term],
             ["yx", yx_term],
             ["xyz", xyz_term],
             ["zyx", zyx_term]
         ]
 
-        H = hamiltonian(static, [], basis=basis, dtype=np.complex128, check_symm=False, check_herm=False)
-        E, psi = H.eigsh(k=1, which='SA')
+        H = quantum_LinearOperator(static, basis=basis, dtype=np.complex128, check_symm=False, check_herm=False)
+        E, psi = H.eigsh(k=20, which='SA')  # look at low lying states only
         psi = psi[:,0]
         # write it in a .txt file for easy access
         np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate"), psi)
@@ -144,6 +146,7 @@ def entanglement_string(psi, basis):
     return s_sites
 
 # ----- Plotting ----- #
+
 def plot_site(dmrg_path, op, values, site_measurements_ed, scan_var, opp, set):
     '''Plot the given results of a site for a range of parameters'''
     cmap = plt.cm.inferno
@@ -225,7 +228,8 @@ def plot_correlator(dmrg_path, op, values, measurements_ed, scan_var, opp, set, 
         # ED data
         L = measurements_ed.shape[1]
         y_ed = np.abs(measurements_ed[ind])
-        x_ed = np.arange(1, len(y_ed)+1+1)
+        x_ed = [len(y_ed) - i for i in range(len(y_ed))] 
+        # x_ed = np.arange(1, len(y_ed)+1+1)
         label_ed = f"{scan_var}={v:.2f}"
 
         # DMRG data
@@ -307,6 +311,11 @@ def plot_entropy(dmrg_path, single_site, half_chain, scan_var, values, opp, set)
     plt.legend()
     plt.grid()
     plt.show()
+
+
+
+
+
 
 # import numpy as np
 # import matplotlib.pyplot as plt

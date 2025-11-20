@@ -76,150 +76,153 @@ class MPO_main():
         return MPO
 
 
-def dmrg_main(L, par, pol, task_id = '0_0', J = 1):
+# def dmrg_main(L, par, pol, task_id = '0_0', J = 1):
 
-    start_time = datetime.now()
+#     start_time = datetime.now()
 
-    # Base output folder for this task
-    base_path = task_id
-    # os.makedirs(base_path, exist_ok=True)
+#     # Base output folder for this task
+#     base_path = task_id
+#     # os.makedirs(base_path, exist_ok=True)
 
-    path_out = os.path.join(base_path, 'OUT')
-    os.makedirs(path_out, exist_ok=True)
-    path_mps = os.path.join(base_path, 'MPS')
-    os.makedirs(path_mps, exist_ok=True)
-    path_cont = os.path.join(base_path, 'CONT')
-    os.makedirs(path_cont, exist_ok=True)
+#     path_out = os.path.join(base_path, 'OUT')
+#     os.makedirs(path_out, exist_ok=True)
+#     path_mps = os.path.join(base_path, 'MPS')
+#     os.makedirs(path_mps, exist_ok=True)
+#     path_cont = os.path.join(base_path, 'CONT')
+#     os.makedirs(path_cont, exist_ok=True)
 
-    # Define the system size and bond dimension
-    L = L  # check
-    chi = 200
+#     # Define the system size and bond dimension
+#     L = L  # check
+#     chi = 200
 
-    h_x, k_l, k_r = par
+#     h_x, k_l, k_r = par
 
-    # define the par output
-    path_par = os.path.join(path_out, f'out_{h_x:.3f}_{k_l:.3f}_{k_r:.3f}/')
-    os.makedirs(path_par, exist_ok=True)
+#     # define the par output
+#     path_par = os.path.join(path_out, f'out_{h_x:.3f}_{k_l:.3f}_{k_r:.3f}/')
+#     os.makedirs(path_par, exist_ok=True)
 
-    # initialise the MPS for the indicated chain length
-    mps = MPS(L)
+#     # initialise the MPS for the indicated chain length
+#     mps = MPS(L)
 
-    # define the MPO 
-    h = MPO_main(h=h_x,k_left=k_l, k_right=k_r, J=J, pol=pol)
+#     # define the MPO 
+#     h = MPO_main(h=h_x,k_left=k_l, k_right=k_r, J=J, pol=pol)
 
-    # define the contractions (it needs an mps and a MPO class as imputs)
-    cont = CONT(mps=mps,H=h)
+#     # define the contractions (it needs an mps and a MPO class as imputs)
+#     cont = CONT(mps=mps,H=h)
 
-    # randomize initial MPS and CONT
-    mps.random()
-    cont.random()
+#     # randomize initial MPS and CONT
+#     mps.random()
+#     cont.random()
 
-    # Initialize your dmrg (set low bond dimension to make the system grow faster)
-    sys = dmrg(cont=cont,chi=10,cut=1e-12)
+#     # Initialize your dmrg (set low bond dimension to make the system grow faster)
+#     sys = dmrg(cont=cont,chi=10,cut=1e-12)
 
-    # Grow the system up to the desired dimension
-    # En = sys.infinite()
+#     # Grow the system up to the desired dimension
+#     # En = sys.infinite()
 
-    En = [0.0]
-    # open the energy sweep file and write the starting energy
-    with open(path_par + 'E_sweep.txt','w') as f:
-        f.write(f'{En[-1]} \n')
+#     En = [0.0]
+#     # open the energy sweep file and write the starting energy
+#     with open(path_par + 'E_sweep.txt','w') as f:
+#         f.write(f'{En[-1]} \n')
 
-    # Increase the bond dimension to the desired one 
-    sys.chi = chi
+#     # Increase the bond dimension to the desired one 
+#     sys.chi = chi
 
-    # run the first one and half sweep - do not record!
-    for site,dir in mps.first_sweep():
-        _,_,_ = sys.step2sites(site,dir=dir)
+#     # run the first one and half sweep - do not record!
+#     for site,dir in mps.first_sweep():
+#         _,_,_ = sys.step2sites(site,dir=dir)
         
-        # write sweep energy
-        # with open(path_par + 'E_sweep.txt','a') as f:
-        #     f.write(f'{E} \n')
+#         # write sweep energy
+#         # with open(path_par + 'E_sweep.txt','a') as f:
+#         #     f.write(f'{E} \n')
 
-    # Set up counter and energy check
-    En_temp = np.zeros(2*L-8)
-    En_temp[0] = 1
+#     # Set up counter and energy check
+#     En_temp = np.zeros(2*L-8)
+#     En_temp[0] = 1
 
-    # Now we can sweep the system  (ideally until convergence)
-    sweep = 0
-    while sweep < 7:
-        j = 0
-        for site,dir in mps.sweep():
-            En_temp[j],S,_ = sys.step2sites(site,dir=dir)
-            # write sweep energy
-            with open(path_par + 'E_sweep.txt','a') as f:
-                f.write(f'{En_temp[j]} \n')
-            j +=1
-        # increase system bond dimension for more accuracy
-        # sys.chi += 100 - adds too much computation time
+#     # Now we can sweep the system  (ideally until convergence)
+#     sweep = 0
+#     while np.abs(En_temp[0] - En_temp[-1]) > 1e-7:
+#         j = 0
+#         for site,dir in mps.sweep():
+#             En_temp[j],S,_ = sys.step2sites(site,dir=dir)
+#             # write sweep energy
+#             with open(path_par + 'E_sweep.txt','a') as f:
+#                 f.write(f'{En_temp[j]} \n')
+#             j +=1
+#         # increase system bond dimension for more accuracy
+#         # sys.chi += 100 - adds too much computation time
 
-        sweep += 1
+#         if sweep >= 7:
+#              break
+        
+#         sweep += 1
 
-    # define observables
-    obs = observables(mps)
+#     # define observables
+#     obs = observables(mps)
 
-    # Final sweep to store observables
-    for site,dir in mps.right_sweep():
-        En,S,_ = sys.step2sites(site,dir=dir,stage='Final')
+#     # Final sweep to store observables
+#     for site,dir in mps.right_sweep():
+#         En,S,_ = sys.step2sites(site,dir=dir,stage='Final')
 
-        # Store local magnetization
-        with open(path_par + 'X.txt','a') as fz:
-                fz.write(f'{site} {obs.single_site(site,h.X).real} \n')
-        with open(path_par + 'Y.txt', 'a') as fz:
-                fz.write(f'{site} {obs.single_site(site,h.Y).real} \n')
-        with open(path_par + 'Z.txt', 'a') as fz:
-                fz.write(f'{site} {obs.single_site(site,h.Z).real} \n')
+#         # Store local magnetization
+#         with open(path_par + 'X.txt','a') as fz:
+#                 fz.write(f'{site} {obs.single_site(site,h.X).real} \n')
+#         with open(path_par + 'Y.txt', 'a') as fz:
+#                 fz.write(f'{site} {obs.single_site(site,h.Y).real} \n')
+#         with open(path_par + 'Z.txt', 'a') as fz:
+#                 fz.write(f'{site} {obs.single_site(site,h.Z).real} \n')
 
-        # Store entanglement entropy
-        with open(path_par + 'S.txt','a') as fz:
-                fz.write(f'{site} {site+1} {S} \n')
+#         # Store entanglement entropy
+#         with open(path_par + 'S.txt','a') as fz:
+#                 fz.write(f'{site} {site+1} {S} \n')
 
-        # Store all two point correlations from site
-        obs.all_corr(path_par + 'XX.txt', site, string=h.Id , obs1=h.X)
-        obs.all_corr(path_par + 'YY.txt', site, string=h.Id , obs1=h.Y)
-        obs.all_corr(path_par + 'ZZ.txt', site, string=h.Id , obs1=h.Z)
+#         # Store all two point correlations from site
+#         obs.all_corr(path_par + 'XX.txt', site, string=h.Id , obs1=h.X)
+#         obs.all_corr(path_par + 'YY.txt', site, string=h.Id , obs1=h.Y)
+#         obs.all_corr(path_par + 'ZZ.txt', site, string=h.Id , obs1=h.Z)
 
-        obs.all_corr(path_par + 'XZ.txt', site, string=h.Id , obs1=h.X, obs2=h.Z)
-        obs.all_corr(path_par + 'XY.txt', site, string=h.Id , obs1=h.X, obs2=h.Y)
-        obs.all_corr(path_par + 'YZ.txt', site, string=h.Id , obs1=h.Y, obs2=h.Z)
+#         obs.all_corr(path_par + 'XZ.txt', site, string=h.Id , obs1=h.X, obs2=h.Z)
+#         obs.all_corr(path_par + 'XY.txt', site, string=h.Id , obs1=h.X, obs2=h.Y)
+#         obs.all_corr(path_par + 'YZ.txt', site, string=h.Id , obs1=h.Y, obs2=h.Z)
 
-        obs.all_corr(path_par + 'XYZ.txt',site, string=h.Y, obs1=h.X, obs2=h.Z)
+#         obs.all_corr(path_par + 'XYZ.txt',site, string=h.Y, obs1=h.X, obs2=h.Z)
 
-    end_time = datetime.now()
-    diff = end_time - start_time
-    total_seconds = int(diff.total_seconds())
+#     end_time = datetime.now()
+#     diff = end_time - start_time
+#     total_seconds = int(diff.total_seconds())
 
-    hours = total_seconds // 3600
-    minutes = (total_seconds % 3600) // 60
-    seconds = total_seconds % 60
+#     hours = total_seconds // 3600
+#     minutes = (total_seconds % 3600) // 60
+#     seconds = total_seconds % 60
 
-    print(f'Parameter ({h_x:.3f}, {k_l:.3f}, {k_r:.3f}) done !!! Time elapsed: {hours:02}:{minutes:02}:{seconds:02}')
+#     print(f'Parameter ({h_x:.3f}, {k_l:.3f}, {k_r:.3f}) done !!! Time elapsed: {hours:02}:{minutes:02}:{seconds:02}')
 
-def dmrg_line(L, pol, scan_var, values, opp, set, home, J=1):
-    ''' Perform a single line of parameter values for DMRG'''
+# def dmrg_line(L, pol, scan_var, values, opp, set, home, J=1):
+#     ''' Perform a single line of parameter values for DMRG'''
 
-    folder = f"dmrg_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}"
-    if os.path.exists(os.path.join(os.getcwd(), folder)):
-        return 1
-    # determine h and k
-    for ind, val in tqdm(enumerate(values)):
-        if scan_var == "h":
-            h = val
-            k_l = k_r = set
-        else:
-            h = set     # fixed field, change if needed
-            k_l = k_r = val
+#     folder = f"dmrg_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}"
+#     if os.path.exists(os.path.join(os.getcwd(), folder)):
+#         return 1
+#     # determine h and k
+#     for ind, val in tqdm(enumerate(values)):
+#         if scan_var == "h":
+#             h = val
+#             k_l = k_r = set
+#         else:
+#             h = set     # fixed field, change if needed
+#             k_l = k_r = val
 
-        # create folder for results
-        task_id = f"L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}/{h:.2f}_{k_l:.2f}_{k_r:.2f}"
-        workdir = f"run_{task_id}"
-        os.makedirs(workdir, exist_ok=True)
-        os.chdir(workdir)
+#         # create folder for results
+#         task_id = f"L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}/{h:.2f}_{k_l:.2f}_{k_r:.2f}"
+#         workdir = f"run_{task_id}"
+#         os.makedirs(workdir, exist_ok=True)
+#         os.chdir(workdir)
 
-        parameter = (h,k_l,k_r)
-        dmrg_main(L, parameter, pol, task_id='.')
+#         parameter = (h,k_l,k_r)
+#         dmrg_main(L, parameter, pol, task_id='.', J=J)
 
-        os.chdir("../..")
+#         os.chdir("../..")
     
-    # go back home
-    os.chdir(home)
+#     # go back home
+#     os.chdir(home)
