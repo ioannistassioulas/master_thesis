@@ -114,20 +114,22 @@ def correlator(op1, op2, i, j, psi, basis):
 
     return connected_correlator
 
-def correlator_string(op1, op2, central_site, psi, basis):
+def correlator_string(op1, op2, psi, basis):
     L = int(np.log2(len(psi)))
     length = L // 2   # how many correlators you expect
     
-    correlations = np.zeros(length)
+    d = []
+    correlations = []
 
     # fill only the available distances:
-    max_dist = L - central_site - 1   # e.g. 6 for L=14, central=7
-    for d in range(max_dist):
-        j = central_site + 1 + d
-        correlations[d] = (-1)**(d+1) * correlator(op1, op2, central_site, j, psi, basis)
+    for i in range(L):
+        if i >= length:
+            d.append(i - length)
+            correlations.append(correlator(op1, op2, length, i, psi, basis))
 
     # remaining entries stay zero
-    return correlations
+    return d, correlations
+
 # --- Entanglement ---
 def entanglement_site(psi, basis):
     L = int(np.log2(len(psi)))
