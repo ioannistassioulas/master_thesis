@@ -6,90 +6,11 @@ from tqdm import tqdm
 import os
 import glob
 
-# --- Finding GS ---
-def exact_diagonalization_line(values, scan_var, opp, set, basis, L, J=1, bc="obc"):
-    '''Perform exact diagonalization across a line on the parameter space of your phase diagram'''
-    if not os.path.exists("ed_results"):
-        os.mkdir("ed_results")
-
-    folder_eigenstates = f"ed_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_states"
-    folder_eigenvalues = f"ed_results/L{L}_{opp}{set}_{scan_var}{np.min(values)}-{np.max(values)}_values"
-
-    if not os.path.exists(folder_eigenstates):
-        os.mkdir(folder_eigenstates)
-        os.mkdir(folder_eigenvalues)
-    else:
-        return 1
-    
-    for ind, val in tqdm(enumerate(values)):
-        # determine h and k
-        if scan_var == "h":
-            h = val
-            k_l = k_r = set
-        else:
-            h = set     # fixed field, change if needed
-            k_l = k_r = val
-
-        # --- Hamiltonian ---
-        if bc == "obc":
-            # open boundary conditions
-            strength = 1e1
-            pol_bc = [[strength, 0], [(-1)**L * strength, L-1]]
-
-            J_term = [[J, i, i+1] for i in range(L-1)]   
-            h_term = [[h, i] for i in range(L)]  
-
-            xy_term = [[k_r, i, i+2] for i in range(L-2)]
-            yx_term = [[-k_l, i, i+2] for i in range(L-2)]
-            xyz_term = [[k_l, i, i+1,i+2] for i in range(L-2)]
-            zyx_term = [[-k_r, i, i+1, i+2] for i in range(L-2)]
-        else:
-            # polarized boundary conditions
-            strength = 1e1
-            pol_bc = [[strength, 0], [-1**L * strength, L-1]]
-
-            J_term = [[J, i, (i+1)% L] for i in range(L)]   
-            h_term = [[h, i] for i in range(L)]  
-
-            xy_term = [[k_r, i, (i+2) % L] for i in range(L)]
-            yx_term = [[-k_l, i, (i+2)% L] for i in range(L)]
-            xyz_term = [[k_l, i, (i+1)% L,(i+2)% L] for i in range(L)]
-            zyx_term = [[-k_r, i, (i+1)% L, (i+2)% L] for i in range(L)]
-
-        static = [
-            ["xx", J_term],
-            ["z",  h_term],
-            ["x", pol_bc],
-            ["y", pol_bc],
-            ["z", pol_bc],
-            ["xy", xy_term],
-            ["yx", yx_term],
-            ["xyz", xyz_term],
-            ["zyx", zyx_term]
-        ]
-
-        H = quantum_LinearOperator(static, basis=basis, dtype=np.complex128, check_symm=False, check_herm=False)
-        E, psi = H.eigsh(k=20, which='SA')  # look at low lying states only
-        psi = psi[:,0]
-        # write it in a .txt file for easy access
-        np.savetxt(os.path.join(os.getcwd(), folder_eigenstates, f"{opp}{set:.2f}_{scan_var}{val:.2f}_groundstate"), psi)
-        np.savetxt(os.path.join(os.getcwd(), folder_eigenvalues, f"{opp}{set:.2f}_{scan_var}{val:.2f}_energies"), E)
-
 # --- Magnetization ---
-def magnetization_string(op, psi, basis):
-    '''Magnetization across entire string'''
-    op_string = []
-    L = int(np.log2(len(psi)))
-
-    for i in range(L):
-        operator = quantum_LinearOperator([[op, [[1.0, i]]]], basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
-        mx = np.real_if_close(psi.conj() @ (operator.dot(psi)))
-        op_string.append(mx)
-    return op_string
 
 def magnetization_site(op, site, psi, basis, diff=False):
     '''Magnetization on singular site'''
-
+    
     if diff:
         op_mid = quantum_LinearOperator([[op, [[1, site]]]],  basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
         op_mid2 = quantum_LinearOperator([[op, [[1, site+1]]]],  basis=basis, check_symm=False, check_herm=False,dtype=np.complex128)
