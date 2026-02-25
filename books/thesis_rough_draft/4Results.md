@@ -13,8 +13,6 @@ First order Transition:
 
 
 
-
-
 Incommensurate Luttinger Liquid:
 
 The incommensurate Luttinger Liquid phase was identified using a multitude of methods. Firstly, and the most straightforward, we use a well known formula from CFT to find the fit of the central charge from the entanglement entropy of the system. The Calabrese Cardy formula \cite{calabrese cardy} predicts the following relation between the entanglement entropy of a 1+1D system in a critical phase as 
@@ -58,3 +56,6 @@ $$\langle \sigma_i \rangle \propto \frac{\cos{(qi + \phi)}}{\left[(N/\pi) \cos{(
 \end{equation}
 
 where $K$ is the Luttinger liquid parameter and $q$ is the real-space wavevector. For commensurate systems, $q$ is a multiple of $\pi$; for incommensurate $q \neq $n\pi$. 
+
+
+

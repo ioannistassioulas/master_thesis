@@ -31,4 +31,3 @@ The exact goal of the thesis will be to study the $k$-term as in Figure \ref{fig
 
 
 This thesis will be organized as follows. After this brief introduction to the topic, a more complete literature review will proceed covering the theoretical groundwork as well as the general state of research. The methodology section will explain in detail in the numerical methods applied, including an explanation and justification of all the simulation parameters for both the DMRG and ED computations. The results section will begin with a sketch of the phase diagram, followed by more detailed subsection describing each quantum phase and quantum phase transition. All novel discoveries, critical analysis and implications are expanded upon in the discussion section. Finally, the takeaways, limitations, and extensions of this investigation will be concluded and presented in the conclusion. All source code and more developed derivations are kept to the appendix.
-
