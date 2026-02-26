@@ -11,7 +11,7 @@ General Results:
 
 First order Transition:
 
-
+-------------
 
 Incommensurate Luttinger Liquid:
 
@@ -57,5 +57,16 @@ $$\langle \sigma_i \rangle \propto \frac{\cos{(qi + \phi)}}{\left[(N/\pi) \cos{(
 
 where $K$ is the Luttinger liquid parameter and $q$ is the real-space wavevector. For commensurate systems, $q$ is a multiple of $\pi$; for incommensurate $q \neq $n\pi$. 
 
+----------------
+
+Self Duality: Transition at h=1
+
+The existence of self duality in our Hamiltonian provides an exciting opportunity to study the
+transition along the self-dual line. We note that we identify two primary transitions - the first
+being the expected Ising transition with a central charge of c = 1/2 along the gapped phases of
+low k. This transition occurs approximately between 0 <  k < 0.15 when h = 1. Secondly, the transition
+between two Luttinger Liquid phases across k > 0.15. 
 
 
+
+The transition between the critical 
