@@ -1,4 +1,3 @@
-Abstract
+Abstract:
 
-HOW TO WRITE AN ABSTRACT
-
+One-dimensional interacting systems has been a hot topic of research for decades in the field condensed matter physics. One of the primary angles through which to study these systems is through the phases and phase transitions of their ground states. This thesis will focus on one particular model of the interacting Majorana chain model, looking at the five site off symmetric quartic $k$ interaction. The . Similar 4 operator interactions have been studied in depth, but this particular form of the interaction has not yet seen in depth investigation. This gap in the research presents an ample opportunity to identify new systems . The study of the system was done via numerical methods, mainly the variational density matrix renormalization group method and exact diagonalization. The model was also found to be self dual under the Kramers Wannier duality transformation, given a self dual line along all parameter values of $h = J$. From this was discovered four phases; two gapped phases for low $k$ and two gapless, incommensurate Luttinger Liquid phases above critical values of $k_c$. Such a phase diagram raise further questions in the phase diagram of the symmetric model, and the 
