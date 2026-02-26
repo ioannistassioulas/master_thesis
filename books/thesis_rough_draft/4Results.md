@@ -70,3 +70,17 @@ between two Luttinger Liquid phases across k > 0.15.
 
 
 The transition between the critical 
+
+
+
+---
+
+ED results
+
+Although the primary tool for investigating low energy physics is DMRG, ED still has various uses for the investigation of the model. 
+
+The main reason i wanted to use ED is to fill in the knowledge gaps that DMRG left behind. Namely, the information of states above the ground state. ED makes it easy to examine the energy spectrum as well as isolate specific terms in relatively quick simulations for small system sizes. The energy spectrum was used to determine the natural degeneracy of the ground state, and what polarized boundary conditions would be needed.
+
+
+
+Additionally, the $k$-term was studied in isolation to determine when and where it would be used.
