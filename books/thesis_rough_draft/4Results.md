@@ -7,13 +7,22 @@ Guiding questions:
 General Results:
 
 1. Phase Diagram
-2. List of phases and phase transitions
+2. List of phases and phase transitions (written below)
+3. 
 
-First order Transition:
+**Ising transition**
+
+The Ising transition for low $k$ remain
+
+---
+
+**G-1 to Floating-1transition:**
+
+The first transition that was studied in depth was the AFM first gapped phase transition and the Floating transigion for h < 1. 
 
 -------------
 
-Incommensurate Luttinger Liquid:
+**Incommensurate Luttinger Liquid:**
 
 The incommensurate Luttinger Liquid phase was identified using a multitude of methods. Firstly, and the most straightforward, we use a well known formula from CFT to find the fit of the central charge from the entanglement entropy of the system. The Calabrese Cardy formula \cite{calabrese cardy} predicts the following relation between the entanglement entropy of a 1+1D system in a critical phase as 
 
@@ -45,7 +54,7 @@ We can define a conformal length $ l_C = \log{(\frac{2L}{\pi a} \sin{\frac{\pi x
     \label{tab:placeholder}
 \end{table}
 
-The incommensurability of the luttinger liquid phase is identified via identification of the Friedel oscillations in the local magnetization $\sigma^X_i$. Named after Jacques Friedel who predicted them in 1952 \cite{} Friedel oscillations are the effect of boundary perturbations to the order parameter in the bulk, leading to a modulation of the local magnetization.Using boundary CFT (bCFT) \cite{natalia topological paper} , we expect the modulation to appear as
+The incommensurability of the luttinger liquid phase is identified via identification of the Friedel oscillations in the local magnetization $\sigma^X_i$. riedel oscillations are the effect of boundary perturbations to the order parameter in the bulk, leading to a modulation of the local magnetization. In our example,the perturbations are simply a finite size effect. Using boundary CFT (bCFT) \cite{natalia topological paper} , we expe24:18ct the modulation to appear as
 
 \begin{equation}
 
@@ -59,7 +68,7 @@ where $K$ is the Luttinger liquid parameter and $q$ is the real-space wavevector
 
 ----------------
 
-Self Duality: Transition at h=1
+**Self Duality: Transition at h=1**
 
 The existence of self duality in our Hamiltonian provides an exciting opportunity to study the
 transition along the self-dual line. We note that we identify two primary transitions - the first
@@ -67,15 +76,21 @@ being the expected Ising transition with a central charge of c = 1/2 along the g
 low k. This transition occurs approximately between 0 <  k < 0.15 when h = 1. Secondly, the transition
 between two Luttinger Liquid phases across k > 0.15. 
 
+The transition between the critical .
 
+Since the disappearance of the Ising criticality for the floating phases is quite different from what was expected with the $f$-term, we also studied the non-symmetric case where $k_L \neq k_R$. This was done in the following way, by defining the ratio $r_k = \frac{k_L}{k_R}$ and requiring $k_L + k_R = 2k$, we obtain:
 
-The transition between the critical 
+\begin{equation}
 
+k_R = \frac{2k}{r_k+1}, k_L = \frac{2k * r_k}{1+r_k}
 
+\end{equation}
+
+The idea is that maybe the lack of a transition at h = 1 is an exception in the symmetric case of $r_k = 1$. Otherwise, we consider
 
 ---
 
-ED results
+**ED results**
 
 Although the primary tool for investigating low energy physics is DMRG, ED still has various uses for the investigation of the model. 
 
@@ -84,3 +99,9 @@ The main reason i wanted to use ED is to fill in the knowledge gaps that DMRG le
 
 
 Additionally, the $k$-term was studied in isolation to determine when and where it would be used.
+
+---
+
+**Competing Interactions** 
+
+As an additional extension to the primary investigation of this project, that being the phase diagram for the $h-k$ model, we studied the $k-f$ model
