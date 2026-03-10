@@ -12,13 +12,13 @@ General Results:
 
 **Ising transition**
 
-The Ising transition for low $k$ remain
+The Ising transition for low $k$ remains unchanged from the non-interacting case. We can see that even with the existence of $k$ the system falls into the expected groundstate.
 
 ---
 
-**G-1 to Floating-1transition:**
+**G-1 to Floating-1 transition:**
 
-The first transition that was studied in depth was the AFM first gapped phase transition and the Floating transigion for h < 1. 
+The first transition that was studied in depth was the AFM first gapped phase transition and the Floating transition for h < 1. 
 
 -------------
 
@@ -68,7 +68,7 @@ where $K$ is the Luttinger liquid parameter and $q$ is the real-space wavevector
 
 ----------------
 
-**Self Duality: Transition at h=1**
+**Self-Dual line**
 
 The existence of self duality in our Hamiltonian provides an exciting opportunity to study the
 transition along the self-dual line. We note that we identify two primary transitions - the first
