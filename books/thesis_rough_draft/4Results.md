@@ -66,6 +66,10 @@ $$\langle \sigma_i \rangle \propto \frac{\cos{(qi + \phi)}}{\left[(N/\pi) \cos{(
 
 where $K$ is the Luttinger liquid parameter and $q$ is the real-space wavevector. For commensurate systems, $q$ is a multiple of $\pi$; for incommensurate $q \neq $n\pi$. 
 
+
+
+(Include lines of incommensurability and explain them)
+
 ----------------
 
 **Self-Dual line**
@@ -78,7 +82,9 @@ between two Luttinger Liquid phases across k > 0.15.
 
 The transition between the critical .
 
-Since the disappearance of the Ising criticality for the floating phases is quite different from what was expected with the $f$-term, we also studied the non-symmetric case where $k_L \neq k_R$. This was done in the following way, by defining the ratio $r_k = \frac{k_L}{k_R}$ and requiring $k_L + k_R = 2k$, we obtain:
+(Talk about non-symmetrical case study done in LL phase)
+
+Since the disappearance of the Ising criticality for the floating phases is quite different from what was expected with the $g$-term, we also studied the non-symmetric case where $k_L \neq k_R$. This was done in the following way, by defining the ratio $r_k = \frac{k_L}{k_R}$ and requiring $k_L + k_R = 2k$, we obtain:
 
 \begin{equation}
 
