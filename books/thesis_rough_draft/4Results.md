@@ -8,7 +8,18 @@ General Results:
 
 1. Phase Diagram
 2. List of phases and phase transitions (written below)
-3. 
+
+**ED results**
+
+Although the primary tool for investigating low energy physics is DMRG, ED still has various uses for the investigation of the model. 
+
+The main reason i wanted to use ED is to fill in the knowledge gaps that DMRG left behind. Namely, the information of states above the ground state. ED makes it easy to examine the energy spectrum as well as isolate specific terms in relatively quick simulations for small system sizes. The energy spectrum was used to determine the natural degeneracy of the ground state, and what polarized boundary conditions would be needed. It turns out that the $k$-term is 
+
+
+
+Additionally, the $k$-term was studied in isolation to determine when and where it would be used.
+
+---
 
 **Ising transition**
 
@@ -16,7 +27,7 @@ The Ising transition for low $k$ remains unchanged from the non-interacting case
 
 ---
 
-**G-1 to Floating-1 transition:**
+*sG-1 to Floating-1 transition:**
 
 The first transition that was studied in depth was the AFM first gapped phase transition and the Floating transition for h < 1. 
 
@@ -94,20 +105,11 @@ k_R = \frac{2k}{r_k+1}, k_L = \frac{2k * r_k}{1+r_k}
 
 The idea is that maybe the lack of a transition at h = 1 is an exception in the symmetric case of $r_k = 1$. Otherwise, we consider
 
----
 
-**ED results**
-
-Although the primary tool for investigating low energy physics is DMRG, ED still has various uses for the investigation of the model. 
-
-The main reason i wanted to use ED is to fill in the knowledge gaps that DMRG left behind. Namely, the information of states above the ground state. ED makes it easy to examine the energy spectrum as well as isolate specific terms in relatively quick simulations for small system sizes. The energy spectrum was used to determine the natural degeneracy of the ground state, and what polarized boundary conditions would be needed.
-
-
-
-Additionally, the $k$-term was studied in isolation to determine when and where it would be used.
 
 ---
 
 **Competing Interactions** 
 
 As an additional extension to the primary investigation of this project, that being the phase diagram for the $h-k$ model, we studied the $k-f$ model
+
